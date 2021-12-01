@@ -1,4 +1,4 @@
-package day0N
+package day02
 
 import isDebug
 import java.io.File
@@ -13,21 +13,16 @@ fun main() {
     part2(parsed)
 }
 
-private val lineStructure = """(\d+)-(\d+) (.): (.+)""".toRegex()
-
 fun parse(input: List<String>) = input.map {
-    lineStructure.matchEntire(it)?.destructured?.let {
-        val (low, _, _, _) = it.toList()
-        low.toInt()
-    }
+    it.toInt()
 }.requireNoNulls()
 
 fun part1(input: List<Int>) {
-    val res = input
+    val res = input.zipWithNext().count { it.second > it.first }
     println("Part 1 = $res")
 }
 
 fun part2(input: List<Int>) {
-    val res = input.size
+    val res = input.windowed(3).map { it.sum() }.zipWithNext().count { it.second > it.first }
     println("Part 2 = $res")
 }
