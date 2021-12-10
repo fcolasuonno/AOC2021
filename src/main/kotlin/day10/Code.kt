@@ -13,58 +13,20 @@ fun main() {
     part2(parsed)
 }
 
-data class Chunk(val startDelimiter: Char, val start: Int) {
-    val completion: String
-        get() = if (end == null) (children.lastOrNull()?.completion.orEmpty() + delimiters[startDelimiter]) else ""
-
-    val corruptedChar: Char?
-        get() = endDelimiter?.takeIf { delimiters[startDelimiter] != it }
-            ?: children.firstNotNullOfOrNull { it.corruptedChar }
-
-    val incomplete
-        get() = corruptedChar == null && end == null
-
-    private var endDelimiter: Char? = null
-    private var end: Int? = null
-    private val children = mutableListOf<Chunk>()
-
-    companion object {
-        fun parse(line: List<Char>) =
-            generateSequence(listOf(Chunk(line[0], 0).parse(line))) { chunks ->
-                chunks.last().end?.inc()?.takeIf { it < line.size }?.let { next ->
-                    chunks + Chunk(line[next], next).parse(line)
-                }
-            }.last()
-
-        val delimiters = mapOf(
-            '(' to ')',
-            '[' to ']',
-            '{' to '}',
-            '<' to '>'
-        )
-    }
-
-    private fun parse(line: List<Char>, from: Int = start + 1): Chunk {
-        when (val next = line.getOrNull(from)) {
-            in delimiters.keys -> {
-                val chunk = Chunk(next!!, from).parse(line)
-                children.add(chunk)
-                chunk.end?.let { parse(line, it + 1) }
-            }
-            in delimiters.values -> {
-                end = from
-                endDelimiter = next
-            }
-        }
-        return this
-    }
+object Chunk {
+    val delimiters = mapOf(
+        '(' to ')',
+        '[' to ']',
+        '{' to '}',
+        '<' to '>'
+    )
 }
 
 fun parse(input: List<String>) = input.map {
-    Chunk.parse(it.toList())
+    it.toList()
 }.requireNoNulls()
 
-fun part1(input: List<List<Chunk>>) {
+fun part1(input: List<List<Char>>) {
     val points = mapOf(
         ')' to 3,
         ']' to 57,
@@ -72,20 +34,30 @@ fun part1(input: List<List<Chunk>>) {
         '>' to 25137
     )
     val res = input.mapNotNull {
-        it.firstNotNullOfOrNull { chunk -> chunk.corruptedChar }
+        ArrayDeque<Char>().run {
+            it.firstOrNull { c ->
+                if (c in Chunk.delimiters) !add(c)
+                else Chunk.delimiters[removeLast()] != c
+            }
+        }
     }.sumOf { points.getValue(it) }
     println("Part 1 = $res")
 }
 
-fun part2(input: List<List<Chunk>>) {
+fun part2(input: List<List<Char>>) {
     val points = mapOf(
-        ')' to 1,
-        ']' to 2,
-        '}' to 3,
-        '>' to 4
+        '(' to 1,
+        '[' to 2,
+        '{' to 3,
+        '<' to 4
     )
-    val res = input.mapNotNull {
-        it.last().takeIf { chunk -> chunk.incomplete }?.completion?.fold(0L) { acc, c -> acc * 5 + points.getValue(c) }
+    val res = input.mapNotNull { line ->
+        line.fold(ArrayDeque<Char>() as ArrayDeque<Char>?) { deque, c ->
+            deque?.takeIf {
+                if (c in Chunk.delimiters) it.add(c)
+                else Chunk.delimiters[it.removeLast()] == c
+            }
+        }?.foldRight(0L) { c, acc -> acc * 5 + points.getValue(c) }
     }.sorted().let { it[it.size / 2] }
     println("Part 2 = $res")
 }
