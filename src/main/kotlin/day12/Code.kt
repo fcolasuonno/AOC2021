@@ -29,26 +29,25 @@ fun parse(input: List<String>) = input.flatMap {
 
 fun part1(input: Map<Cave, List<Cave>>) {
     val res = generateSequence(0 to listOf(listOf(Cave.START))) { (existing, start) ->
-        val (found, new) = start.flatMap { before ->
+        start.takeIf { it.isNotEmpty() }?.flatMap { before ->
             input.getValue(before.last())
                 .filter { !it.isSmall || it !in before }
                 .map { before + it }
-        }.partition { it.last() == Cave.END }
-        new.takeIf { it.isNotEmpty() }?.let { (existing + found.size) to it }
+        }?.partition { it.last() == Cave.END }?.let { existing + it.first.size to it.second }
     }.last().first
     println("Part 1 = $res")
 }
 
 fun part2(input: Map<Cave, List<Cave>>) {
     val res = generateSequence(0 to listOf(listOf(Cave.START))) { (existing, start) ->
-        val (found, new) = start.filter { it.last() != Cave.END }
-            .flatMap { before ->
-                input.getValue(before.last()).map { before + it }
-            }.filter {
-                it.filter { it.isSmall }.groupingBy { it }.eachCount()
-                    .let { it.count { it.value == 2 } <= 1 && it.none { it.value > 2 } }
-            }.partition { it.last() == Cave.END }
-        new.takeIf { it.isNotEmpty() }?.let { (existing + found.size) to it }
+        start.takeIf { it.isNotEmpty() }?.flatMap { before ->
+            input.getValue(before.last())
+                .filter { cave ->
+                    !cave.isSmall || cave !in before || before.filter { it.isSmall }
+                        .let { it.distinct().size == it.size }
+                }
+                .map { before + it }
+        }?.partition { it.last() == Cave.END }?.let { existing + it.first.size to it.second }
     }.last().first
     println("Part 2 = $res")
 }
