@@ -14,6 +14,14 @@ val Coord.neighbours: List<Coord>
         Coord(first + 1, second + 1)
     )
 
+val Coord.closeNeighbours: List<Coord>
+    get() = listOf(
+        Coord(first, second - 1),
+        Coord(first - 1, second),
+        Coord(first + 1, second),
+        Coord(first, second + 1)
+    )
+
 
 fun <E> List<MutableList<E>>.printWith(byLines: Boolean = true, function: (E) -> String) = buildString {
     append('\n')
