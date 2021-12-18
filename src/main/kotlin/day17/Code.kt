@@ -2,7 +2,6 @@ package day17
 
 import isDebug
 import java.io.File
-import kotlin.math.abs
 import kotlin.math.sqrt
 
 fun main() {
@@ -21,7 +20,7 @@ fun parse(input: List<String>) = format.matchEntire(input.single())?.destructure
     .let { (x1, x2, y1, y2) -> x1..x2 to y1..y2 }
 
 fun part1(input: Pair<IntRange, IntRange>) {
-    val res = (abs(input.second.minOrNull()!!) - 1).let { it * (it + 1) / 2 }
+    val res = (-input.second.first - 1).let { it * (it + 1) / 2 }
     println("Part 1 = $res")
 }
 
