@@ -2,7 +2,6 @@ package day22
 
 import isDebug
 import java.io.File
-import java.util.*
 
 fun main() {
     val name = if (isDebug()) "test.txt" else "input.txt"
@@ -15,133 +14,59 @@ fun main() {
 }
 
 fun parse(input: List<String>) = input.map {
-    val (on, cube) = it.split(' ')
-    val (x, y, z) = cube.split(',').map { it.drop(2).split("..").map { it.toInt() } }
-    Cuboid(
-        on = (on == "on"), cube = Cube(
-            x[0]..x[1], y[0]..y[1], z[0]..z[1]
-        )
+    val (on, cuboid) = it.split(' ')
+    val (x, y, z) = cuboid.split(',').map { it.drop(2).split("..").map { it.toInt() } }
+    Cuboid(on == "on", x[0]..x[1], y[0]..y[1], z[0]..z[1])
+}
+
+private fun IntRange.intersect1(range: IntRange) = if (first <= range.last && last >= range.first)
+    maxOf(first, range.first)..minOf(last, range.last) else IntRange.EMPTY
+
+data class Cuboid(val on: Boolean, val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
+    fun intersect(cuboid: Cuboid, invert: Boolean) = Cuboid(
+        if (invert) on != cuboid.on else on == cuboid.on,
+        xRange.intersect1(cuboid.xRange),
+        yRange.intersect1(cuboid.yRange),
+        zRange.intersect1(cuboid.zRange)
     )
+
+    val size = xRange.count().toLong() * yRange.count() * zRange.count()
 }
 
-data class Cube(val xRange: IntRange, val yRange: IntRange, val zRange: IntRange) {
-
-}
-
-data class Cuboid(val on: Boolean, val cube: Cube)
-
-data class Rect(val set: TreeMap<Int, Line> = TreeMap(compareBy { it })) {
-    fun add(xRange: IntRange, yRange: IntRange) {
-        if (set.isNotEmpty()) {
-            val floor = set.floorEntry(xRange.first)
-            val ceil = set.ceilingEntry(xRange.last + 1)
-            set.subMap(xRange.first, true, xRange.last + 1, true).keys.forEach {
-                set.remove(it)
-            }
-            if (floor == null) {
-                set[xRange.first] = Line().apply { add(yRange) }
-            } else {
-                set[xRange.first] = floor.value + yRange
-            }
-            if (ceil == null) {
-                set[xRange.last + 1] = Line()
-            } else {
-                set[xRange.last + 1] = ceil.value
-            }
-        } else {
-            set[xRange.first] = Line().apply { add(yRange) }
-            set[xRange.last + 1] = Line()
+data class Space(val cuboids: MutableList<Cuboid> = mutableListOf()) {
+    operator fun plus(cuboid: Cuboid): Space = this.apply {
+        val common = cuboids.map { it.intersect(cuboid, invert = cuboid.on) }.filter { it.size > 0 }
+        if (cuboid.on) {
+            cuboids.add(cuboid)
+        }
+        common.forEach {
+            cuboids.add(it)
         }
     }
 
-    fun remove(xRange: IntRange, yRange: IntRange) {
-        if (set.isNotEmpty()) {
-            val floor = set.floorEntry(xRange.first)
-            val ceil = set.ceilingEntry(xRange.last + 1)
-            set.subMap(xRange.first, true, xRange.last + 1, true).keys.forEach {
-                set.remove(it)
-            }
-            if (floor != null) {
-                set[xRange.first] = floor.value - yRange
-            }
-            if (ceil != null) {
-                set[xRange.last + 1] = ceil.value
-            }
+    val sum
+        get() = cuboids.fold(0L) { acc, cuboid ->
+            if (cuboid.on) { acc + cuboid.size } else { acc - cuboid.size }
         }
-    }
-
-}
-
-data class Line(val set: TreeMap<Int, Boolean> = TreeMap(compareBy { it })) {
-    fun add(xRange: IntRange) {
-        if (set.isNotEmpty()) {
-            val floor = set.floorEntry(xRange.first)
-            val ceil = set.ceilingEntry(xRange.last + 1)
-            set.subMap(xRange.first, true, xRange.last + 1, true).keys.forEach {
-                set.remove(it)
-            }
-            if (floor == null || floor.value == false) {
-                set[xRange.first] = true
-            }
-            if (ceil == null || ceil.value == true) {
-                set[xRange.last + 1] = false
-            }
-        } else {
-            set[xRange.first] = true
-            set[xRange.last + 1] = false
-        }
-    }
-
-    fun remove(xRange: IntRange) {
-        if (set.isNotEmpty()) {
-            val floor = set.floorEntry(xRange.first)
-            val ceil = set.ceilingEntry(xRange.last + 1)
-            set.subMap(xRange.first, true, xRange.last + 1, true).keys.forEach {
-                set.remove(it)
-            }
-            if (floor != null && floor.value == true) {
-                set[xRange.first] = false
-            }
-            if (ceil != null && ceil.value == false) {
-                set[xRange.last + 1] = true
-            }
-        } else {
-            set[xRange.first] = false
-            set[xRange.last + 1] = true
-        }
-    }
-
-    operator fun plus(yRange: IntRange): Line {
-        val l = Line()
-        l.set.putAll(set)
-        l.add(yRange)
-        return l
-    }
-
-    operator fun minus(yRange: IntRange): Line {
-        val l = Line()
-        l.set.putAll(set)
-        l.remove(yRange)
-        return l
-    }
 
 }
 
 fun part1(input: List<Cuboid>) {
-
-    val line = Rect()
-    input.forEach {
-        System.err.println("" + it.on + ":" + it.cube.xRange + "," + it.cube.yRange)
-        if (it.on) {
-            line.add(it.cube.xRange, it.cube.yRange)
-        } else {
-            line.remove(it.cube.xRange, it.cube.yRange)
-        }
-        System.err.println(line)
-    }
+    val sum = input.filter {
+        listOf(
+            it.xRange.first,
+            it.xRange.last,
+            it.yRange.first,
+            it.yRange.last,
+            it.zRange.first,
+            it.zRange.last
+        ).all { it in -50..50 }
+    }.fold(Space()) { acc, cuboid -> acc + cuboid }.sum
+    println("Part 1 = $sum")
 }
 
 fun part2(input: List<Cuboid>) {
-    println("Part 2 = ${input.size}")
+    println("Part 2 = ${input.fold(Space()) { acc, cuboid -> acc + cuboid }.sum}")
 }
+
 

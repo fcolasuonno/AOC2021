@@ -2,16 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="13fd4b07-d741-4764-a484-a9fa59ad3679" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/day22/Code.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/day22/input.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/day22/test.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/KotlinJavaRuntime.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/AOC2021.iml" beforeDir="false" afterPath="$PROJECT_DIR$/AOC2021.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/day22/Code.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/day22/Code.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/day22/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/day22/test.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -90,16 +83,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/kotlin/day22/Code.kt</url>
-          <line>59</line>
-          <option name="timeStamp" value="17" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
